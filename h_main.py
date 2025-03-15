@@ -78,14 +78,34 @@ async def inline_callback(callback: CallbackQuery, state: FSMContext):
             await callback.answer()
 
             await state.set_state(OrderAdd.new_card)
-            await callback.message.answer(text="напишите название карты, кешбек по категориям такого типа:", reply_markup=h_kb.reply_off_add_kb())
+            await callback.message.answer(text="""
+напишите название карты, кешбек по категориям такого типа:\n\n
+alpha (название карты)
+products 0.1 (категория, кешбек)
+medic 0.4
+fuel 0.7
+clothing 0.1
+education 0.2
+cosmetics 0.3
+electronics 0.1
+entertaiments 0.2
+restaraunt 0.3
+transport 0.1
+sport 0.3
+taxi 0.5
+travels 0.3""", reply_markup=h_kb.reply_off_add_kb())
         case _:
             lst = h_db_func.get_value_db(table="Cards", id=user_id)
             # print(lst)
-            [[line[2], line[4]] for line in lst if line[3] == call]
+            lst = [line for line in lst if line[3] == call]
+            cashs = [line[4] for line in lst if line[3] == call]
+            # name = lst[cashs.index(max(cashs))]
+            print(lst)
             print()
+            print(cashs)
 
             await callback.answer(f"вы выбрали {call}")
+            await callback.message.answer(f"лучшая ваша карта {lst[cashs.index(max(cashs))][2]} с кешбеком {max(cashs)}")
 
             
 
@@ -99,7 +119,7 @@ async def folder_name_chosen(message: Message, state: FSMContext):
 
     if text == "Завершить добавление":
         await state.clear()
-        await message.answer("карты добавлены. нажмите \start")
+        await message.answer("карты добавлены. нажмите /start")
         return
     else:
         lst = text.split('\n')
